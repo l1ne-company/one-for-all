@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    one-for-all.url = "path:../../../../..";
+    one-for-all.url = "github:l1ne-company/one-for-all";
 
     flake-utils = {
       url = "github:numtide/flake-utils";
