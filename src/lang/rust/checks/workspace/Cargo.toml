@@ -4,7 +4,7 @@ resolver = "2"
 # promote them to members since they are listed as path deps
 members = ["print"]
 package.version = "0.1.0"
-metadata.crane.name = "workspace"
+metadata.one-for-all.name = "workspace"
 
 [workspace.lints.rust]
 rust_2018_idioms = "deny"

@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 package.version = "0.0.1"
-metadata.crane.name = "workspace-git"
+metadata.one-for-all.name = "workspace-git"
 members = [
   "foo",
   "bar",

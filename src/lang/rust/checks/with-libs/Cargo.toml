@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 package.version = "0.0.1"
-metadata.crane.name = "with-libs"
+metadata.one-for-all.name = "with-libs"
 members = [
   "all-types",
   "only-cdylib",
