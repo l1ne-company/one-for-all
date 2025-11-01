@@ -1,5 +1,5 @@
 let
-  lock = builtins.fromJSON (builtins.readFile ./test/flake.lock);
+  lock = builtins.fromJSON (builtins.readFile ./src/lang/rust/test/flake.lock);
   locked = lock.nodes.flake-compat.locked;
   compat = fetchTarball {
     url = "https://github.com/${locked.owner}/${locked.repo}/archive/${locked.rev}.tar.gz";
@@ -9,7 +9,7 @@ let
   flake = import compat {
     src = builtins.path {
       path = ./.;
-      name = "crane";
+      name = "one-for-all";
     };
   };
 in

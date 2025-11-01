@@ -298,7 +298,7 @@ onlyDrvs (
 
       craneUtilsChecks =
         let
-          src = myLib.cleanCargoSource ../pkgs/crane-utils;
+          src = myLib.cleanCargoSource ../pkgs/one-for-all-utils;
           cargoArtifacts = myLib.buildDepsOnly {
             inherit src;
           };

@@ -15,7 +15,7 @@ let
   minSupported = "25.05";
   current = lib.concatStringsSep "." (lib.lists.sublist 0 2 (lib.splitVersion lib.version));
   isUnsupported = lib.versionOlder current minSupported;
-  msg = "crane requires at least nixpkgs-${minSupported}, supplied nixpkgs-${current}";
+  msg = "one-for-all requires at least nixpkgs-${minSupported}, supplied nixpkgs-${current}";
 
   # Helps keep things in sync between `overrideToolchain` and `keep`
   attrsForToolchainOverride = [
@@ -93,7 +93,7 @@ let
       configureCargoCommonVarsHook = callPackage ./setupHooks/configureCargoCommonVars.nix { };
       configureCargoVendoredDepsHook = callPackage ./setupHooks/configureCargoVendoredDeps.nix { };
       craneLib = self;
-      craneUtils = callPackage ../pkgs/crane-utils { };
+      craneUtils = callPackage ../pkgs/one-for-all-utils { };
 
       crateNameFromCargoToml = callPackage ./crateNameFromCargoToml.nix {
         inherit internalCrateNameFromCargoToml;
@@ -136,7 +136,7 @@ let
               craneLib.overrideToolchain requires a spliced toolchain when cross-compiling. Consider specifying
               a function which constructs a toolchain for any given `pkgs` instantiation:
 
-              (crane.mkLib pkgs).overrideToolchain (p: ...)
+              (one-for-all.mkLib pkgs).overrideToolchain (p: ...)
             '';
           in
           lib.warnIf needsSplicing warningMsg (lib.genAttrs attrsForToolchainOverride (_: toolchain))

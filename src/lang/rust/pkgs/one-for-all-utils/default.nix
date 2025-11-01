@@ -4,7 +4,7 @@
 }:
 
 rustPlatform.buildRustPackage {
-  pname = "l1ne-for-all-utils";
+  pname = "one-for-all-utils";
   version = "0.0.1";
 
   src = lib.sourceFilesBySuffices ./. [

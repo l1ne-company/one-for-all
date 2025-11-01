@@ -2,4 +2,4 @@
   pkgs ? import <nixpkgs> { },
 }:
 
-pkgs.callPackage ./lib { }
+pkgs.callPackage ./src/lang/rust/lib { }

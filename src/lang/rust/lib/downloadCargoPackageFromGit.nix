@@ -132,7 +132,7 @@ stdenv.mkDerivation {
 
         echo '{"files":{}, "package":null}' > "$dest/.cargo-checksum.json"
 
-        crane-resolve-workspace-inheritance "$cargoToml" > "$dest/Cargo.toml.resolved" &&
+        one-for-all-resolve-workspace-inheritance "$cargoToml" > "$dest/Cargo.toml.resolved" &&
           mv "$dest/Cargo.toml"{.resolved,}
 
         existing_crates["$crate"]='1'

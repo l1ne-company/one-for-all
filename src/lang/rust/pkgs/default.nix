@@ -14,9 +14,9 @@
         ];
       };
     in
-    pkgs.runCommand "crane-book" { } ''
+    pkgs.runCommand "one-for-all-book" { } ''
       ${pkgs.mdbook}/bin/mdbook build --dest-dir $out ${cleanedSrc}/docs
     '';
 
-  crane-utils = myLib.callPackage ./crane-utils { };
+  one-for-all-utils = myLib.callPackage ./one-for-all-utils { };
 }

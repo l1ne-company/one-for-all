@@ -16,7 +16,7 @@
         import ./default.nix {
           inherit pkgs;
         };
-      nodes = (builtins.fromJSON (builtins.readFile ./test/flake.lock)).nodes;
+      nodes = (builtins.fromJSON (builtins.readFile ./src/lang/rust/test/flake.lock)).nodes;
       inputFromLock =
         name:
         let
@@ -63,68 +63,68 @@
       templates = rec {
         alt-registry = {
           description = "Build a cargo project with alternative crate registries";
-          path = ./examples/alt-registry;
+          path = ./src/lang/rust/examples/alt-registry;
         };
 
         build-std = {
           description = "Build a cargo project while also compiling the standard library";
-          path = ./examples/build-std;
+          path = ./src/lang/rust/examples/build-std;
         };
 
         cross-musl = {
           description = "Building static binaries with musl";
-          path = ./examples/cross-musl;
+          path = ./src/lang/rust/examples/cross-musl;
         };
 
         cross-rust-overlay = {
           description = "Cross compiling a rust program using rust-overlay";
-          path = ./examples/cross-rust-overlay;
+          path = ./src/lang/rust/examples/cross-rust-overlay;
         };
 
         cross-windows = {
           description = "Cross compiling a rust program for windows";
-          path = ./examples/cross-windows;
+          path = ./src/lang/rust/examples/cross-windows;
         };
 
         custom-toolchain = {
           description = "Build a cargo project with a custom toolchain";
-          path = ./examples/custom-toolchain;
+          path = ./src/lang/rust/examples/custom-toolchain;
         };
 
         end-to-end-testing = {
           description = "Run End-to-End tests for a webapp";
-          path = ./examples/end-to-end-testing;
+          path = ./src/lang/rust/examples/end-to-end-testing;
         };
 
         default = quick-start;
         quick-start = {
           description = "Build a cargo project";
-          path = ./examples/quick-start;
+          path = ./src/lang/rust/examples/quick-start;
         };
 
         quick-start-simple = {
           description = "Build a cargo project without extra checks";
-          path = ./examples/quick-start-simple;
+          path = ./src/lang/rust/examples/quick-start-simple;
         };
 
         quick-start-workspace = {
           description = "Build a cargo workspace with hakari";
-          path = ./examples/quick-start-workspace;
+          path = ./src/lang/rust/examples/quick-start-workspace;
         };
 
         sqlx = {
           description = "Build a cargo project which uses SQLx";
-          path = ./examples/sqlx;
+          path = ./src/lang/rust/examples/sqlx;
         };
 
         trunk = {
           description = "Build a trunk project";
-          path = ./examples/trunk;
+          path = ./src/lang/rust/examples/trunk;
         };
 
         trunk-workspace = {
           description = "Build a workspace with a trunk member";
-          path = ./examples/trunk-workspace;
+          path = ./src/lang/rust/examples/trunk-workspace;
         };
       };
     }
@@ -145,7 +145,7 @@
 
         checks = { };
 
-        packages = import ./pkgs {
+        packages = import ./src/lang/rust/pkgs {
           inherit pkgs myLib;
         };
 
