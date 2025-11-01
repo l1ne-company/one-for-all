@@ -1,3 +1,31 @@
+# ONE-FOR-ALL
+
+## TUTORIAL
+
+The flake templates are defined in the main `flake.nix` at lines 63-129. They're located in `./src/lang/rust/examples/`:
+
+**Default template:** `quick-start` (`./src/lang/rust/examples/quick-start`)
+
+**All available templates:**
+- `quick-start` - Basic cargo project with all checks
+- `quick-start-simple` - Basic cargo project without extra checks
+- `quick-start-workspace` - Cargo workspace with hakari
+- `alt-registry` - Alternative crate registries
+- `build-std` - Compile with standard library
+- `cross-musl` - Static binaries with musl
+- `cross-rust-overlay` - Cross compile with rust-overlay
+- `cross-windows` - Cross compile for Windows
+- `custom-toolchain` - Custom toolchain
+- `end-to-end-testing` - E2E tests for webapps
+- `sqlx` - SQLx usage
+- `trunk` - Trunk projects
+- `trunk-workspace` - Workspace with trunk
+
+**Usage:**
+```bash
+nix flake init -t github:l1ne-company/one-for-all#quick-start
+```
+
 ```mermaid
 graph TD
   FLAKE[flake.nix]
@@ -26,32 +54,6 @@ graph TD
   PACKAGE --> PUSH
   PUSH --> INDEX
   INDEX --> FETCH
-```
-
-## Flake Templates
-
-The flake templates are defined in the main `flake.nix` at lines 63-129. They're located in `./src/lang/rust/examples/`:
-
-**Default template:** `quick-start` (`./src/lang/rust/examples/quick-start`)
-
-**All available templates:**
-- `quick-start` - Basic cargo project with all checks
-- `quick-start-simple` - Basic cargo project without extra checks
-- `quick-start-workspace` - Cargo workspace with hakari
-- `alt-registry` - Alternative crate registries
-- `build-std` - Compile with standard library
-- `cross-musl` - Static binaries with musl
-- `cross-rust-overlay` - Cross compile with rust-overlay
-- `cross-windows` - Cross compile for Windows
-- `custom-toolchain` - Custom toolchain
-- `end-to-end-testing` - E2E tests for webapps
-- `sqlx` - SQLx usage
-- `trunk` - Trunk projects
-- `trunk-workspace` - Workspace with trunk
-
-**Usage:**
-```bash
-nix flake init -t github:l1ne-company/one-for-all#quick-start
 ```
 
 ### Phase 1: Isolate and Build Rust Tests via Nix
