@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    crane.url = "github:ipetkov/crane";
+    one-for-all.url = "path:../../../../..";
 
     flake-utils.url = "github:numtide/flake-utils";
 
@@ -18,7 +18,7 @@
     {
       self,
       nixpkgs,
-      crane,
+      one-for-all,
       flake-utils,
       rust-overlay,
       ...
@@ -40,15 +40,15 @@
             # wasm32-unknown-unknown is required for trunk.
             targets = [ "wasm32-unknown-unknown" ];
           };
-        craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchainFor;
+        oneForAllLib = (one-for-all.mkLib pkgs).overrideToolchain rustToolchainFor;
 
         # When filtering sources, we want to allow assets other than .rs files
         unfilteredRoot = ./.; # The original, unfiltered source
         src = lib.fileset.toSource {
           root = unfilteredRoot;
           fileset = lib.fileset.unions [
-            # Default files from crane (Rust and cargo files)
-            (craneLib.fileset.commonCargoSources unfilteredRoot)
+            # Default files from one-for-all (Rust and cargo files)
+            (oneForAllLib.fileset.commonCargoSources unfilteredRoot)
             (lib.fileset.fileFilter (
               file:
               lib.any file.hasExt [
@@ -62,7 +62,7 @@
         };
 
         # Arguments to be used by both the client and the server
-        # When building a workspace with crane, it's a good idea
+        # When building a workspace with one-for-all, it's a good idea
         # to set "pname" and "version".
         commonArgs = {
           inherit src;
@@ -85,10 +85,10 @@
 
         # Build *just* the cargo dependencies, so we can reuse
         # all of that work (e.g. via cachix) when running in CI
-        cargoArtifacts = craneLib.buildDepsOnly nativeArgs;
+        cargoArtifacts = oneForAllLib.buildDepsOnly nativeArgs;
 
         # Simple JSON API that can be queried by the client
-        myServer = craneLib.buildPackage (
+        myServer = oneForAllLib.buildPackage (
           nativeArgs
           // {
             inherit cargoArtifacts;
@@ -108,7 +108,7 @@
           CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
         };
 
-        cargoArtifactsWasm = craneLib.buildDepsOnly (
+        cargoArtifactsWasm = oneForAllLib.buildDepsOnly (
           wasmArgs
           // {
             doCheck = false;
@@ -117,7 +117,7 @@
 
         # Build the frontend of the application.
         # This derivation is a directory you can put on a webserver.
-        myClient = craneLib.buildTrunkPackage (
+        myClient = oneForAllLib.buildTrunkPackage (
           wasmArgs
           // {
             pname = "trunk-workspace-client";
@@ -165,7 +165,7 @@
           # Note that this is done as a separate derivation so that
           # we can block the CI if there are issues here, but not
           # prevent downstream consumers from building our crate by itself.
-          my-app-clippy = craneLib.cargoClippy (
+          my-app-clippy = oneForAllLib.cargoClippy (
             commonArgs
             // {
               inherit cargoArtifacts;
@@ -176,7 +176,7 @@
           );
 
           # Check formatting
-          my-app-fmt = craneLib.cargoFmt commonArgs;
+          my-app-fmt = oneForAllLib.cargoFmt commonArgs;
         };
 
         apps.default = flake-utils.lib.mkApp {
@@ -184,7 +184,7 @@
           drv = myServer;
         };
 
-        devShells.default = craneLib.devShell {
+        devShells.default = oneForAllLib.devShell {
           # Inherit inputs from checks.
           checks = self.checks.${system};
 

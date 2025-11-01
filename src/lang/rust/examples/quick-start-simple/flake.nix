@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    crane.url = "github:ipetkov/crane";
+    one-for-all.url = "path:../../../../..";
 
     flake-utils.url = "github:numtide/flake-utils";
   };
@@ -13,7 +13,7 @@
     {
       self,
       nixpkgs,
-      crane,
+      one-for-all,
       flake-utils,
       ...
     }:
@@ -22,12 +22,12 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        craneLib = crane.mkLib pkgs;
+        oneForAllLib = one-for-all.mkLib pkgs;
 
         # Common arguments can be set here to avoid repeating them later
         # Note: changes here will rebuild all dependency crates
         commonArgs = {
-          src = craneLib.cleanCargoSource ./.;
+          src = oneForAllLib.cleanCargoSource ./.;
           strictDeps = true;
 
           buildInputs = [
@@ -39,10 +39,10 @@
           ];
         };
 
-        my-crate = craneLib.buildPackage (
+        my-crate = oneForAllLib.buildPackage (
           commonArgs
           // {
-            cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+            cargoArtifacts = oneForAllLib.buildDepsOnly commonArgs;
 
             # Additional environment variables or build phases/hooks can be set
             # here *without* rebuilding all dependency crates
@@ -61,7 +61,7 @@
           drv = my-crate;
         };
 
-        devShells.default = craneLib.devShell {
+        devShells.default = oneForAllLib.devShell {
           # Inherit inputs from checks.
           checks = self.checks.${system};
 

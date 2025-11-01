@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    crane.url = "github:ipetkov/crane";
+    one-for-all.url = "path:../../../../..";
 
     flake-utils = {
       url = "github:numtide/flake-utils";
@@ -15,7 +15,7 @@
     {
       self,
       nixpkgs,
-      crane,
+      one-for-all,
       flake-utils,
       ...
     }:
@@ -68,8 +68,8 @@
           # })
         ];
 
-        my-crate = craneLib.buildPackage {
-          src = craneLib.cleanCargoSource ./.;
+        my-crate = oneForAllLib.buildPackage {
+          src = oneForAllLib.cleanCargoSource ./.;
           strictDeps = true;
 
           buildInputs = [
@@ -95,7 +95,7 @@
           drv = my-crate;
         };
 
-        devShells.default = craneLib.devShell {
+        devShells.default = oneForAllLib.devShell {
           # Inherit inputs from checks.
           checks = self.checks.${system};
 

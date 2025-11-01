@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    crane.url = "github:ipetkov/crane";
+    one-for-all.url = "path:../../../../..";
 
     flake-utils.url = "github:numtide/flake-utils";
 
@@ -17,7 +17,7 @@
   outputs =
     {
       nixpkgs,
-      crane,
+      one-for-all,
       flake-utils,
       rust-overlay,
       ...
@@ -33,7 +33,7 @@
           overlays = [ (import rust-overlay) ];
         };
 
-        craneLib = (crane.mkLib pkgs).overrideToolchain (p: p.rust-bin.stable.latest.default);
+        oneForAllLib = (one-for-all.mkLib pkgs).overrideToolchain (p: p.rust-bin.stable.latest.default);
 
         # Note: we have to use the `callPackage` approach here so that Nix
         # can "splice" the packages in such a way that dependencies are
@@ -52,8 +52,8 @@
             pkg-config,
             stdenv,
           }:
-          craneLib.buildPackage {
-            src = craneLib.cleanCargoSource ./.;
+          oneForAllLib.buildPackage {
+            src = oneForAllLib.cleanCargoSource ./.;
             strictDeps = true;
 
             # Dependencies which need to be build for the current platform

@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    crane.url = "github:ipetkov/crane";
+    one-for-all.url = "path:../../../../..";
 
     flake-utils.url = "github:numtide/flake-utils";
 
@@ -18,7 +18,7 @@
     {
       self,
       nixpkgs,
-      crane,
+      one-for-all,
       flake-utils,
       advisory-db,
       ...
@@ -30,8 +30,8 @@
 
         inherit (pkgs) lib;
 
-        craneLib = crane.mkLib pkgs;
-        src = craneLib.cleanCargoSource ./.;
+        oneForAllLib = one-for-all.mkLib pkgs;
+        src = oneForAllLib.cleanCargoSource ./.;
 
         # Common arguments can be set here to avoid repeating them later
         commonArgs = {
@@ -52,11 +52,11 @@
 
         # Build *just* the cargo dependencies, so we can reuse
         # all of that work (e.g. via cachix) when running in CI
-        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+        cargoArtifacts = oneForAllLib.buildDepsOnly commonArgs;
 
         # Build the actual crate itself, reusing the dependency
         # artifacts from above.
-        my-crate = craneLib.buildPackage (
+        my-crate = oneForAllLib.buildPackage (
           commonArgs
           // {
             inherit cargoArtifacts;
@@ -74,7 +74,7 @@
           # Note that this is done as a separate derivation so that
           # we can block the CI if there are issues here, but not
           # prevent downstream consumers from building our crate by itself.
-          my-crate-clippy = craneLib.cargoClippy (
+          my-crate-clippy = oneForAllLib.cargoClippy (
             commonArgs
             // {
               inherit cargoArtifacts;
@@ -82,7 +82,7 @@
             }
           );
 
-          my-crate-doc = craneLib.cargoDoc (
+          my-crate-doc = oneForAllLib.cargoDoc (
             commonArgs
             // {
               inherit cargoArtifacts;
@@ -93,30 +93,30 @@
           );
 
           # Check formatting
-          my-crate-fmt = craneLib.cargoFmt {
+          my-crate-fmt = oneForAllLib.cargoFmt {
             inherit src;
           };
 
-          my-crate-toml-fmt = craneLib.taploFmt {
+          my-crate-toml-fmt = oneForAllLib.taploFmt {
             src = pkgs.lib.sources.sourceFilesBySuffices src [ ".toml" ];
             # taplo arguments can be further customized below as needed
             # taploExtraArgs = "--config ./taplo.toml";
           };
 
           # Audit dependencies
-          my-crate-audit = craneLib.cargoAudit {
+          my-crate-audit = oneForAllLib.cargoAudit {
             inherit src advisory-db;
           };
 
           # Audit licenses
-          my-crate-deny = craneLib.cargoDeny {
+          my-crate-deny = oneForAllLib.cargoDeny {
             inherit src;
           };
 
           # Run tests with cargo-nextest
           # Consider setting `doCheck = false` on `my-crate` if you do not want
           # the tests to run twice
-          my-crate-nextest = craneLib.cargoNextest (
+          my-crate-nextest = oneForAllLib.cargoNextest (
             commonArgs
             // {
               inherit cargoArtifacts;
@@ -135,7 +135,7 @@
           drv = my-crate;
         };
 
-        devShells.default = craneLib.devShell {
+        devShells.default = oneForAllLib.devShell {
           # Inherit inputs from checks.
           checks = self.checks.${system};
 

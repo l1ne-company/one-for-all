@@ -3,7 +3,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    crane.url = "github:ipetkov/crane";
+    one-for-all.url = "path:../../../../..";
 
     flake-utils.url = "github:numtide/flake-utils";
 
@@ -15,7 +15,7 @@
   outputs =
     {
       nixpkgs,
-      crane,
+      one-for-all,
       flake-utils,
       rust-overlay,
       ...
@@ -29,10 +29,10 @@
         };
         inherit (pkgs) lib;
 
-        craneLib = (crane.mkLib pkgs).overrideToolchain (p: p.rust-bin.stable.latest.default);
-        src = craneLib.cleanCargoSource ./.;
+        oneForAllLib = (one-for-all.mkLib pkgs).overrideToolchain (p: p.rust-bin.stable.latest.default);
+        src = oneForAllLib.cleanCargoSource ./.;
 
-        workspace = craneLib.buildPackage {
+        workspace = oneForAllLib.buildPackage {
           inherit src;
           doCheck = false;
         };

@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    crane.url = "github:ipetkov/crane";
+    one-for-all.url = "path:../../../../..";
 
     flake-utils.url = "github:numtide/flake-utils";
 
@@ -18,7 +18,7 @@
     {
       self,
       nixpkgs,
-      crane,
+      one-for-all,
       flake-utils,
       rust-overlay,
       ...
@@ -33,17 +33,17 @@
 
         # NB: we don't need to overlay our custom toolchain for the *entire*
         # pkgs (which would require rebuidling anything else which uses rust).
-        # Instead, we just want to update the scope that crane will use by appending
+        # Instead, we just want to update the scope that one-for-all will use by appending
         # our specific toolchain there.
-        craneLib = (crane.mkLib pkgs).overrideToolchain (
+        oneForAllLib = (one-for-all.mkLib pkgs).overrideToolchain (
           p:
           p.rust-bin.stable.latest.default.override {
             targets = [ "wasm32-wasip1" ];
           }
         );
 
-        my-crate = craneLib.buildPackage {
-          src = craneLib.cleanCargoSource ./.;
+        my-crate = oneForAllLib.buildPackage {
+          src = oneForAllLib.cleanCargoSource ./.;
           strictDeps = true;
 
           cargoExtraArgs = "--target wasm32-wasip1";
@@ -74,7 +74,7 @@
           '';
         };
 
-        devShells.default = craneLib.devShell {
+        devShells.default = oneForAllLib.devShell {
           # Inherit inputs from checks.
           checks = self.checks.${system};
 

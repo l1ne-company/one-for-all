@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    crane.url = "github:ipetkov/crane";
+    one-for-all.url = "path:../../../../..";
 
     flake-utils.url = "github:numtide/flake-utils";
   };
@@ -13,7 +13,7 @@
     {
       self,
       nixpkgs,
-      crane,
+      one-for-all,
       flake-utils,
       ...
     }:
@@ -24,14 +24,14 @@
 
         inherit (pkgs) lib;
 
-        craneLib = crane.mkLib pkgs;
+        oneForAllLib = one-for-all.mkLib pkgs;
 
         unfilteredRoot = ./.; # The original, unfiltered source
         src = lib.fileset.toSource {
           root = unfilteredRoot;
           fileset = lib.fileset.unions [
-            # Default files from crane (Rust and cargo files)
-            (craneLib.fileset.commonCargoSources unfilteredRoot)
+            # Default files from one-for-all (Rust and cargo files)
+            (oneForAllLib.fileset.commonCargoSources unfilteredRoot)
             # Include all the .sql migrations as well
             ./migrations
           ];
@@ -57,11 +57,11 @@
 
         # Build *just* the cargo dependencies, so we can reuse
         # all of that work (e.g. via cachix) when running in CI
-        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+        cargoArtifacts = oneForAllLib.buildDepsOnly commonArgs;
 
         # Build the actual crate itself, reusing the dependency
         # artifacts from above.
-        my-crate = craneLib.buildPackage (
+        my-crate = oneForAllLib.buildPackage (
           commonArgs
           // {
             inherit cargoArtifacts;
@@ -89,7 +89,7 @@
           inherit my-crate;
         };
 
-        devShells.default = craneLib.devShell {
+        devShells.default = oneForAllLib.devShell {
           # Inherit inputs from checks.
           checks = self.checks.${system};
 
