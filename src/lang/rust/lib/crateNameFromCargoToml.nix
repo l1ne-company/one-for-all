@@ -48,12 +48,12 @@ let
   traceMsg =
     tomlName: drvName: placeholder: workspaceHints:
     lib.flip lib.trivial.warn placeholder ''
-      crane will use a placeholder value since `${tomlName}` cannot be found in ${debugPath}
+      one-for-all will use a placeholder value since `${tomlName}` cannot be found in ${debugPath}
       to silence this warning consider one of the following:
       - setting `${drvName} = "...";` in the derivation arguments explicitly
       - setting `package.${tomlName} = "..."` or ${lib.concatStringsSep " or " workspaceHints} in the root Cargo.toml
       - explicitly looking up the values from a different Cargo.toml via 
-        `craneLib.crateNameFromCargoToml { cargoToml = ./path/to/Cargo.toml; }`
+        `oneForAllLib.crateNameFromCargoToml { cargoToml = ./path/to/Cargo.toml; }`
       ${hint}
     '';
 
@@ -62,8 +62,8 @@ in
 {
   pname =
     internalName.pname or (traceMsg "name" "pname" "cargo-package" [
-      ''`package.metadata.crane.name` = "..."''
-      ''`workspace.metadata.crane.name` = "..."''
+      ''`package.metadata.one-for-all.name` = "..."''
+      ''`workspace.metadata.one-for-all.name` = "..."''
     ]);
   version =
     internalName.version or (traceMsg "version" "version" "0.0.1" [

@@ -32,7 +32,7 @@ let
       known registries are: ${knownRegistries}
       for example, this can be resolved with:
 
-      craneLib = crane.lib.''${system}.appendCrateRegistries [
+      oneForAllLib = one-for-all.lib.''${system}.appendCrateRegistries [
         (lib.registryFromDownloadUrl {
           dl = "https://static.crates.io/crates";
           indexUrl = "https://github.com/rust-lang/crates.io-index";
@@ -52,7 +52,7 @@ let
       ];
 
       # Then use the new craneLib instance as you would normally
-      craneLib.buildPackage {
+      oneForAllLib.buildPackage {
         # ...
       }
     '');

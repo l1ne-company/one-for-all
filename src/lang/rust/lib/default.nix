@@ -93,7 +93,7 @@ let
       configureCargoCommonVarsHook = callPackage ./setupHooks/configureCargoCommonVars.nix { };
       configureCargoVendoredDepsHook = callPackage ./setupHooks/configureCargoVendoredDeps.nix { };
       craneLib = self;
-      craneUtils = callPackage ../pkgs/one-for-all-utils { };
+      oneForAllUtils = callPackage ../pkgs/one-for-all-utils { };
 
       crateNameFromCargoToml = callPackage ./crateNameFromCargoToml.nix {
         inherit internalCrateNameFromCargoToml;

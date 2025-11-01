@@ -1,7 +1,7 @@
 {
   lib,
   cargo,
-  craneUtils,
+  oneForAllUtils,
   jq,
   pkgsBuildBuild,
   remarshal,
@@ -59,7 +59,7 @@ stdenv.mkDerivation {
 
   depsBuildBuild = [
     cargo
-    craneUtils
+    oneForAllUtils
     jq
     remarshal
     ripgrep
