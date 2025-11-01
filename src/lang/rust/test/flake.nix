@@ -13,7 +13,7 @@
       flake = false;
     };
 
-    crane.url = "github:ipetkov/crane";
+    one-for-all.url = "path:../../../..";
 
     fenix = {
       url = "github:nix-community/fenix";
@@ -40,9 +40,7 @@
       let
         mkLib =
           pkgs:
-          import ../default.nix {
-            inherit pkgs;
-          };
+          pkgs.callPackage ../lib { };
         nixpkgs = inputs.nixpkgs;
         pkgs = import nixpkgs {
           inherit system;

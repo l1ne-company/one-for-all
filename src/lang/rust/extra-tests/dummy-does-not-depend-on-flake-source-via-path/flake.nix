@@ -1,7 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    crane.url = "github:ipetkov/crane";
+    one-for-all.url = "path:../../../../..";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -9,17 +9,17 @@
     {
       nixpkgs,
       flake-utils,
-      crane,
+      one-for-all,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        craneLib = crane.mkLib pkgs;
+        oneForAllLib = one-for-all.mkLib pkgs;
       in
       {
-        packages.dummy = craneLib.mkDummySrc {
+        packages.dummy = oneForAllLib.mkDummySrc {
           src = ./.;
         };
       }
