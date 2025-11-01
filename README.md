@@ -1,83 +1,91 @@
-# Crane
+```mermaid
+graph TD
+  FLAKE[flake.nix]
+  BUILD[Build and test with Nix]
+  TEST_OUT[Test output derivation]
+  ZK_GEN[Generate ZK proof of test run]
+  PROOF_OUT[Proof and public input]
+  GH_VERIFIER[GitHub Action verifier]
+  GH_STATUS[Update GitHub status]
 
-A [Nix] library for building [cargo] projects.
+  ARTIFACT[Build binary artifact]
+  PACKAGE[Package binary, proof, metadata]
+  PUSH[Push to blob storage]
+  INDEX[Update version index]
+  FETCH[Download and query package]
 
-* **Source fetching**: automatically done using a Cargo.lock file
-* **Incremental**: build your workspace dependencies just once, then quickly lint,
-  build, and test changes to your project without slowing down
-* **Composable**: split builds and tests into granular steps. Gate CI without
-  burdening downstream consumers building from source.
+  FLAKE --> BUILD
+  BUILD --> TEST_OUT
+  TEST_OUT --> ZK_GEN
+  ZK_GEN --> PROOF_OUT
+  PROOF_OUT --> GH_VERIFIER
+  GH_VERIFIER --> GH_STATUS
 
-## Features
-
-* Automatic vendoring of dependencies in a way that works with Nix
-  - Alternative cargo registries are supported (with a minor configuration
-    change)
-  - Git dependencies are automatically supported without additional
-    configuration.
-    - Cargo retains the flexibility to only use these dependencies when they are
-      actually needed, without forcing an override for the entire workspace.
-* Reusing dependency artifacts after only building them once
-* [clippy] checks
-* [rustfmt] checks
-* [cargo-doc] generation
-* And support for a number of popular tools such as:
-  - [cargo-audit]
-  - [cargo-deny]
-  - [cargo-llvm-cov]
-  - [cargo-nextest]
-  - [cargo-tarpaulin]
-  - [trunk]
-
-## Getting Started
-
-The easiest way to get started is to initialize a flake from a template:
-
-```sh
-# Start with a comprehensive suite of tests
-nix flake init -t github:ipetkov/crane#quick-start
+  BUILD --> ARTIFACT
+  ARTIFACT --> PACKAGE
+  PACKAGE --> PUSH
+  PUSH --> INDEX
+  INDEX --> FETCH
 ```
 
-Otherwise check out the [examples and templates] for more detailed examples. An
-[API Reference] is also available.
+### Phase 1: Isolate and Build Rust Tests via Nix
 
-## Compatibility Policy
+* Fork Crane and strip to Rust-specific logic
+* Ensure all builds and test outputs are derivations (isolated, reproducible)
+* Output derivations for:
 
-Breaking changes can land on the `master` branch at any time, so it is
-recommended you use a versioning strategy when consuming this library (for
-example, using something like flakes or [niv]).
+  * Build artifacts
+  * Test results
 
-Tagged releases will be cut periodically and changes will be documented in the
-[CHANGELOG]. Release versions will follow [Semantic Versioning].
+### Phase 2: Generate Zero-Knowledge Proof from Test Output
 
-The test suite is run against the latest stable nixpkgs release, as well as
-`nixpkgs-unstable`. Any breakage on those channels is considered a bug and
-should be reported as such.
+* Design what statement to prove: "These tests ran successfully on this source"
+* Export test logs, hashes, or traces as structured output from the Nix derivation
+* Build a proof system (e.g., Circom/Halo2-based) that consumes test output
+* Output:
 
-## License
+  * `.proof` file
+  * `public.json` with public inputs for verification
 
-This project is licensed under the MIT license.
+### Phase 3: GitHub Integration (Proof-Only CI)
 
-### Contribution
+* Build a GitHub Action or GitHub App that:
 
-Unless you explicitly state otherwise, any contribution intentionally submitted
-for inclusion by you, shall be licensed as MIT, without any additional terms or
-conditions.
+  * Downloads `.proof` and `public.json` from known location
+  * Runs ZK verifier
+  * Updates GitHub commit status (checks API)
 
-[API reference]: https://crane.dev/API.html
-[cargo-audit]: https://rustsec.org/
-[cargo-deny]: https://github.com/EmbarkStudios/cargo-deny
-[cargo-doc]: https://doc.rust-lang.org/cargo/commands/cargo-doc.html
-[cargo]: https://doc.rust-lang.org/cargo/
-[cargo-llvm-cov]: https://github.com/taiki-e/cargo-llvm-cov
-[cargo-nextest]: https://nexte.st/
-[cargo-tarpaulin]: https://github.com/xd009642/tarpaulin
-[CHANGELOG]: ./CHANGELOG.md
-[clippy]: https://github.com/rust-lang/rust-clippy
-[custom-toolchain]: ./examples/custom-toolchain/flake.nix
-[examples and templates]: https://crane.dev/getting-started.html
-[niv]: https://github.com/nmattia/niv
-[Nix]: https://nixos.org/
-[rustfmt]: https://github.com/rust-lang/rustfmt
-[Semantic Versioning]: http://semver.org/spec/v2.0.0.html
-[Trunk]: https://trunkrs.dev/
+### Phase 4: Local Artifact Builder
+
+* Create a CLI that:
+
+  * Accepts a flake input
+  * Builds outputs via Nix
+  * Runs tests
+  * Generates proof
+  * Packages binary + `.proof` + `public.json` + metadata
+
+### Phase 5: Push to Versioned Blob Store
+
+* Define upload structure:
+
+  * `/pkgs/<flake-ref>/<hash>/binary`
+  * `/pkgs/<flake-ref>/<hash>/test.proof`
+  * `/pkgs/<flake-ref>/<hash>/metadata.json`
+* Use an S3-compatible API for pushing artifacts
+* Attach optional tags or metadata for lookup
+
+### Phase 6: Registry and Retrieval
+
+* Create a manifest or lightweight registry:
+
+  * Index artifacts by flake ref or logical package name
+  * Allow lookup by version, commit hash, or proof ID
+* Build a downloader CLI or HTTP API that:
+
+  * Pulls artifact
+  * Verifies attached `.proof` locally
+  * Extracts metadata and shows provenance
+
+
+This breakdown preserves strict modularity. Each component can be tested independently. Most early development (Phases 1–3) can be entirely local and Git-based. No central service is required until Phase 5 (artifact hosting). Let me know if you'd like this in Markdown format for direct use in a repo or planning tool.
