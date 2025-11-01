@@ -4,13 +4,14 @@
   book =
     let
       inherit (pkgs) lib;
+      root = ./../../../..;
       cleanedSrc = lib.fileset.toSource {
-        root = ./..;
+        inherit root;
         fileset = lib.fileset.unions [
-          ./../docs
-          ./../examples
-          ./../README.md
-          ./../CHANGELOG.md
+          (root + "/docs")
+          (root + "/src/lang/rust/examples")
+          (root + "/README.md")
+          (root + "/CHANGELOG.md")
         ];
       };
     in
