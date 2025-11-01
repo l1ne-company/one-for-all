@@ -296,14 +296,14 @@ onlyDrvs (
             src = ./workspace;
           };
 
-      craneUtilsChecks =
+      oneForAllUtilsChecks =
         let
           src = myLib.cleanCargoSource ../pkgs/one-for-all-utils;
           cargoArtifacts = myLib.buildDepsOnly {
             inherit src;
           };
         in
-        pkgs.linkFarmFromDrvs "craneUtilsTests" [
+        pkgs.linkFarmFromDrvs "oneForAllUtilsTests" [
           (myLib.cargoClippy {
             inherit cargoArtifacts src;
             cargoClippyExtraArgs = "--all-targets -- --deny warnings";
