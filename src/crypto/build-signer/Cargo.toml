@@ -1,0 +1,19 @@
+[package]
+name = "build-signer"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "build-signer"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+ed25519-dalek.workspace = true
+hex.workspace = true
+rand.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
