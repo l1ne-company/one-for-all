@@ -1,0 +1,13 @@
+{
+  "payload": {
+    "commit": "0fd9b80763fa999d0b8bf3f9d35ff98b57df5258",
+    "flake_lock_hash": "2a4e2ba6cf3d1845875740a53ea6907f4dc520c4c84616ecefae279b39f4699b",
+    "build_command": "nix build .#build-signer",
+    "artifact_tar_hash": "dummy-for-demo-purposes",
+    "timestamp": "2025-11-21T14:15:50Z",
+    "nonce": "917c351602baf2f7c263b094cf461dc5"
+  },
+  "signature": "fcab9374e94c3fa3a33e65ddd4ad9f9d9f7bab476f407b4575290f38c369d1266afefec67cdf67008c8aeccce89427d4c6e57555631d3cd39e5cfff5ca1ce80f",
+  "public_key": "f0f65bae20a3256c55f5669c4f8ac97aaac9072c4c79c95188f40320b6ab7d33",
+  "format_version": 1
+}
