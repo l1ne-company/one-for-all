@@ -145,9 +145,13 @@
 
         checks = { };
 
-        packages = import ./src/lang/rust/pkgs {
-          inherit pkgs myLib;
-        };
+        packages =
+          (import ./src/lang/rust/pkgs {
+            inherit pkgs myLib;
+          })
+          // (import ./src/crypto/pkgs {
+            inherit pkgs;
+          });
 
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
@@ -157,6 +161,8 @@
             mdbook
             nix-eval-jobs
             taplo
+            cargo
+            rustc
           ];
         };
       }
