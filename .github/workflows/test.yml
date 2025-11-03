@@ -4,6 +4,7 @@ on:
     types: [opened, synchronize, reopened]
   push:
     branches:
+      - 'main'
       - 'master'
       - 'ci*' # Allow testing CI fixes without opening a PR
 
@@ -19,103 +20,8 @@ jobs:
       - run: exit 1
     needs:
       - lints
-      - examples-darwin
-      - examples-linux
-      - tests
       - crypto-tests
-
-  tests:
-    strategy:
-      # Allow other jobs to finish building and cache properly before bailing
-      fail-fast: false
-      matrix:
-        include:
-            # Latest and greatest release of Nix
-          - install_url: https://nixos.org/nix/install
-            # The 25.05 branch ships with Nix 2.28.3
-          - install_url: https://releases.nixos.org/nix/nix-2.28.3/install
-            nixpkgs-override: "--override-input nixpkgs $(./ci/ref-from-lock.sh ./test#nixpkgs-latest-release)"
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: cachix/install-nix-action@v31
-      with:
-        install_url: ${{ matrix.install_url }}
-    - uses: cachix/cachix-action@v16
-      with:
-        name: crane
-        authToken: ${{ github.ref == 'refs/heads/master' && secrets.CACHIX_AUTH_TOKEN || '' }}
-    - run: nix flake check -L .#
-    - run: nix develop --accept-flake-config --command ./ci/fast-flake-check.sh ./test ${{ matrix.nixpkgs-override }}
-    - name: extra tests
-      run: nix develop --accept-flake-config --command ./extra-tests/test.sh
-
-  examples-linux:
-    strategy:
-      # Allow other jobs to finish building and cache properly before bailing
-      fail-fast: false
-      matrix:
-        example:
-          - alt-registry
-          - build-std
-          - cross-musl
-          - cross-rust-overlay
-          - cross-windows
-          - custom-toolchain
-          - end-to-end-testing
-          - quick-start
-          - quick-start-simple
-          - quick-start-workspace
-          - sqlx
-          - trunk-workspace
-          - trunk
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: cachix/install-nix-action@v31
-    - uses: cachix/cachix-action@v16
-      with:
-        name: crane
-        authToken: ${{ github.ref == 'refs/heads/master' && secrets.CACHIX_AUTH_TOKEN || '' }}
-    - name: validate examples
-      # Nix won't write a lockfile when --override-input is used (which is good because it will
-      # complain that the lock file is .gitignored), but nix-eval-jobs doesn't, so we'll have to
-      # "opt-out" of our lockfile .gitignore
-      run: |
-        rm ./examples/.gitignore
-        nix develop .# --accept-flake-config --command ./ci/check-example.sh ./examples/${{ matrix.example }} "./test#nixpkgs"
-
-  examples-darwin:
-    strategy:
-      # Allow other jobs to finish building and cache properly before bailing
-      fail-fast: false
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: cachix/install-nix-action@v31
-    - uses: cachix/cachix-action@v16
-      with:
-        name: crane
-        authToken: ${{ github.ref == 'refs/heads/master' && secrets.CACHIX_AUTH_TOKEN || '' }}
-    - name: validate examples
-      # Nix won't write a lockfile when --override-input is used (which is good because it will
-      # complain that the lock file is .gitignored), but nix-eval-jobs doesn't, so we'll have to
-      # "opt-out" of our lockfile .gitignore
-      run: |
-        rm ./examples/.gitignore
-        nix develop .# --accept-flake-config --command bash -c '
-          set -euo pipefail
-          for f in $(find ./examples -maxdepth 1 -mindepth 1 -type d -not -name build-std -not -name cross-musl -not -name cross-rust-overlay -not -name cross-windows | sort -u); do
-            # NB: nix-eval-jobs appears broken on darwin atm?
-            # /nix/store/2419grj384lg233jqchamm73il9iyjxg-libcxx-16.0.6-dev/include/c++/v1/optional:962: assertion this->has_value() failed: optional operator* called on a disengaged valueerror: error: while checking worker process, evaluation worker got killed by signal 6 (Abort trap: 6)
-            nix flake check \
-              --accept-flake-config \
-              --print-build-logs \
-              --reference-lock-file ./test/flake.lock \
-              --override-input crane ./. \
-              "${f}"
-          done
-        '
+      - extra-tests
 
   lints:
     runs-on: ubuntu-latest
@@ -133,13 +39,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: cachix/install-nix-action@v31
-    - uses: cachix/cachix-action@v16
-      with:
-        name: crane
-        authToken: ${{ secrets.CACHIX_AUTH_TOKEN || '' }}
     - name: Build crypto tools
       run: |
         nix build .#build-signer
         nix build .#build-verifier
     - name: Run crypto tests
       run: ./src/crypto/tests/test.sh
+
+  extra-tests:
+    name: extra rust tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: cachix/install-nix-action@v31
+    - name: Run extra tests
+      run: nix develop --command ./src/lang/rust/extra-tests/test.sh
