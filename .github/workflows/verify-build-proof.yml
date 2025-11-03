@@ -1,0 +1,67 @@
+name: "Verify build proof"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-proof:
+    name: Verify signed build proof
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v31
+
+      - uses: cachix/cachix-action@v16
+        with:
+          name: crane
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN || '' }}
+
+      - name: Build verifier
+        run: nix build .#build-verifier
+
+      - name: Check for proof file
+        id: check-proof
+        run: |
+          PROOF_FILE="proofs/${{ github.sha }}.json"
+          if [ -f "$PROOF_FILE" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "proof_file=$PROOF_FILE" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "⚠️  No proof file found at $PROOF_FILE"
+            echo "This PR does not include a build proof."
+            echo "To add a proof, run: ./scripts/sign-build.sh -k <your-key>"
+          fi
+
+      - name: Verify proof
+        if: steps.check-proof.outputs.found == 'true'
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          PROOF_FILE="${{ steps.check-proof.outputs.proof_file }}"
+          echo "Verifying proof: $PROOF_FILE"
+
+          # Check if trusted keys file exists
+          TRUSTED_KEYS_ARG=""
+          if [ -f "prover_keys/trusted.txt" ]; then
+            TRUSTED_KEYS_ARG="--trusted-keys prover_keys/trusted.txt"
+          fi
+
+          # Run verifier
+          ./result/bin/build-verifier \
+            $TRUSTED_KEYS_ARG \
+            "$PROOF_FILE"
+
+      - name: Proof verification result
+        if: steps.check-proof.outputs.found == 'true'
+        run: |
+          echo "✅ Build proof verified successfully!"
+          echo ""
+          echo "The build was signed by a trusted developer and matches:"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - flake.lock in this PR"
