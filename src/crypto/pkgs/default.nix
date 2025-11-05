@@ -4,15 +4,16 @@ let
   # Build from the entire workspace
   workspaceSrc = pkgs.lib.cleanSourceWith {
     src = ../.;
-    filter = path: type:
+    filter =
+      path: type:
       let
         baseName = baseNameOf path;
       in
       # Include Cargo files and Rust sources
-      (type == "directory") ||
-      (pkgs.lib.hasSuffix ".rs" path) ||
-      (pkgs.lib.hasSuffix ".toml" path) ||
-      (baseName == "Cargo.lock");
+      (type == "directory")
+      || (pkgs.lib.hasSuffix ".rs" path)
+      || (pkgs.lib.hasSuffix ".toml" path)
+      || (baseName == "Cargo.lock");
   };
 in
 {
@@ -23,8 +24,14 @@ in
     src = workspaceSrc;
 
     # Build only the signer binary
-    cargoBuildFlags = [ "--bin" "build-signer" ];
-    cargoTestFlags = [ "--bin" "build-signer" ];
+    cargoBuildFlags = [
+      "--bin"
+      "build-signer"
+    ];
+    cargoTestFlags = [
+      "--bin"
+      "build-signer"
+    ];
 
     cargoHash = "sha256-aD7da1xJzL1CAvPfihlpmyE9jByt45ld+ia3OmY0ops=";
 
@@ -41,8 +48,14 @@ in
     src = workspaceSrc;
 
     # Build only the verifier binary
-    cargoBuildFlags = [ "--bin" "build-verifier" ];
-    cargoTestFlags = [ "--bin" "build-verifier" ];
+    cargoBuildFlags = [
+      "--bin"
+      "build-verifier"
+    ];
+    cargoTestFlags = [
+      "--bin"
+      "build-verifier"
+    ];
 
     cargoHash = "sha256-aD7da1xJzL1CAvPfihlpmyE9jByt45ld+ia3OmY0ops=";
 

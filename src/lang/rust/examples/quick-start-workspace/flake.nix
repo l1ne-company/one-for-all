@@ -30,7 +30,7 @@
 
         inherit (pkgs) lib;
 
-        oneForAllLib = one-for-all.mkLib pkgs;
+        oneForAllLib = one-for-all.lib.mkLib pkgs;
         src = oneForAllLib.cleanCargoSource ./.;
 
         # Common arguments can be set here to avoid repeating them later

@@ -24,8 +24,8 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        craneLibOrig = crane.mkLib pkgs;
-        craneLib = craneLibOrig.appendCrateRegistries [
+        oneForAllLibOrig = one-for-all.lib.mkLib pkgs;
+        oneForAllLib = oneForAllLibOrig.appendCrateRegistries [
           # Automatically infer the download URL from the registry's index
           #
           # Note that this approach requires checking out the full index at the specified revision
@@ -35,7 +35,7 @@
           # itself_ as long as the pinned revision contains the most recent version of the
           # registry's `config.json` file. In other words, this commit revision only needs to be
           # updated if the `config.json` file changes the download endpoint for this registry.
-          (craneLibOrig.registryFromGitIndex {
+          (oneForAllLibOrig.registryFromGitIndex {
             indexUrl = "https://github.com/Hirevo/alexandrie-index";
             rev = "90df25daf291d402d1ded8c32c23d5e1498c6725";
             fetchurlExtraArgs = {
@@ -44,7 +44,7 @@
           })
 
           # If the registry in question is a sparse index, instead configure as
-          #(craneLibOrig.registryFromSparse {
+          #(oneForAllLibOrig.registryFromSparse {
           #  indexUrl = "https://index.crates.io";
           #  # where the sha256 is the sha256 of https://index.crates.io/config.json.
           #  configSha256 = "d16740883624df970adac38c70e35cf077a2a105faa3862f8f99a65da96b14a3";
@@ -59,7 +59,7 @@
 
           # As a more lightweight alternative, the `dl` endpoint of the registry's `config.json`
           # file can be copied here to avoid needing to copy the index to the Nix store.
-          # (craneLibOrig.registryFromDownloadUrl {
+          # (oneForAllLibOrig.registryFromDownloadUrl {
           #   indexUrl = "https://github.com/Hirevo/alexandrie-index";
           #   dl = "https://crates.polomack.eu/api/v1/crates/{crate}/{version}/download";
           #   fetchurlExtraArgs = {

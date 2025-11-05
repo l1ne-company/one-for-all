@@ -136,7 +136,7 @@ let
               craneLib.overrideToolchain requires a spliced toolchain when cross-compiling. Consider specifying
               a function which constructs a toolchain for any given `pkgs` instantiation:
 
-              (one-for-all.mkLib pkgs).overrideToolchain (p: ...)
+              (one-for-all.lib.mkLib pkgs).overrideToolchain (p: ...)
             '';
           in
           lib.warnIf needsSplicing warningMsg (lib.genAttrs attrsForToolchainOverride (_: toolchain))

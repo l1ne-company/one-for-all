@@ -34,7 +34,7 @@
           };
         };
 
-        oneForAllLib = (one-for-all.mkLib pkgs).overrideToolchain (
+        oneForAllLib = (one-for-all.lib.mkLib pkgs).overrideToolchain (
           p:
           p.rust-bin.stable.latest.default.override {
             targets = [ "x86_64-pc-windows-gnu" ];

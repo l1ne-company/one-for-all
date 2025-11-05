@@ -6,8 +6,8 @@ This repository is a Nix-first toolkit for reproducible Rust projects and zero-k
 ## Build, Test, and Development Commands
 - `nix develop`: enter the project devshell with `cargo`, `clippy`, `rustfmt`, `taplo`, and `nixfmt-tree`.
 - `nix flake check`: build primary packages and run default checks; pass `-L` for verbose logs during debugging.
-- `./test.sh`: run the complete validation suite, including `test#` flake checks and example template verifications.
-- `ci/check-example.sh ./src/lang/rust/examples/<name> test#nixpkgs`: validate a specific example template before publishing docs.
+- `./test.sh`: run the complete validation suite, including `src/lang/rust/test#` flake checks and example template verifications.
+- `ci/check-example.sh ./src/lang/rust/examples/<name> src/lang/rust/test#nixpkgs`: validate a specific example template before publishing docs.
 
 ## Coding Style & Naming Conventions
 Rust code must stay `rustfmt` clean with the stable profile bundled in the devshell; prefer `snake_case` modules and `UpperCamelCase` types to align with upstream examples. Nix expressions are formatted with `nix fmt` (nixfmt-tree) and kept free of unused definitions via `deadnix`. TOML manifests should be normalized with `taplo fmt`, and shell utilities mirror the existing `set -euo pipefail` pattern with lowercase, hyphenated filenames.

@@ -13,10 +13,11 @@ function flakeCheck() {
 }
 
 flakeCheck
-flakeCheck ./test#
-flakeCheck ./test# --override-input nixpkgs "$("${gitRoot}/ci/ref-from-lock.sh" "${gitRoot}/test#nixpkgs-latest-release")"
+langTestFlake="./src/lang/rust/test#"
+flakeCheck "${langTestFlake}"
+flakeCheck "${langTestFlake}" --override-input nixpkgs "$("${gitRoot}/ci/ref-from-lock.sh" "${gitRoot}/src/lang/rust/test#nixpkgs-latest-release")"
 
-for f in $(find ./examples -maxdepth 1 -mindepth 1 -type d | sort -u); do
+for f in $(find ./src/lang/rust/examples -maxdepth 1 -mindepth 1 -type d | sort -u); do
   echo "validating ${f}"
-  "${gitRoot}/ci/check-example.sh" "${f}" "${gitRoot}/test#nixpkgs"
+  "${gitRoot}/ci/check-example.sh" "${f}" "${gitRoot}/src/lang/rust/test#nixpkgs"
 done

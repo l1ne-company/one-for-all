@@ -35,7 +35,7 @@
         # pkgs (which would require rebuidling anything else which uses rust).
         # Instead, we just want to update the scope that one-for-all will use by appending
         # our specific toolchain there.
-        oneForAllLib = (one-for-all.mkLib pkgs).overrideToolchain (
+        oneForAllLib = (one-for-all.lib.mkLib pkgs).overrideToolchain (
           p:
           p.rust-bin.stable.latest.default.override {
             targets = [ "wasm32-wasip1" ];

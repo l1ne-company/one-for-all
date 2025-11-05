@@ -29,7 +29,7 @@
         };
         inherit (pkgs) lib;
 
-        oneForAllLib = (one-for-all.mkLib pkgs).overrideToolchain (p: p.rust-bin.stable.latest.default);
+        oneForAllLib = (one-for-all.lib.mkLib pkgs).overrideToolchain (p: p.rust-bin.stable.latest.default);
         src = oneForAllLib.cleanCargoSource ./.;
 
         workspace = oneForAllLib.buildPackage {

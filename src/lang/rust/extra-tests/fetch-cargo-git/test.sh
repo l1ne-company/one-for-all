@@ -5,8 +5,9 @@ set -eu
 scriptDir=$(dirname "$0")
 cd "${scriptDir}"
 
-nixpkgsOverride="$(../../ci/ref-from-lock.sh ../../test#nixpkgs)"
-craneOverride="--override-input crane ../.. --override-input nixpkgs ${nixpkgsOverride}"
+repoRoot=$(git rev-parse --show-toplevel)
+nixpkgsOverride="$("${repoRoot}/ci/ref-from-lock.sh" "${repoRoot}/src/lang/rust/test#nixpkgs")"
+overrideInputs="--override-input one-for-all path:${repoRoot} --override-input nixpkgs ${nixpkgsOverride}"
 
 # Try fetching the git verision of cargo
-nix build ${craneOverride} .#cargo-git
+nix build ${overrideInputs} .#cargo-git

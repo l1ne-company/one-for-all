@@ -11,7 +11,7 @@
           (root + "/docs")
           (root + "/src/lang/rust/examples")
           (root + "/README.md")
-          (root + "/CHANGELOG.md")
+          (lib.fileset.maybeMissing (root + "/CHANGELOG.md"))
         ];
       };
     in

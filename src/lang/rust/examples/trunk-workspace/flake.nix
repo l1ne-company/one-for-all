@@ -40,7 +40,7 @@
             # wasm32-unknown-unknown is required for trunk.
             targets = [ "wasm32-unknown-unknown" ];
           };
-        oneForAllLib = (one-for-all.mkLib pkgs).overrideToolchain rustToolchainFor;
+        oneForAllLib = (one-for-all.lib.mkLib pkgs).overrideToolchain rustToolchainFor;
 
         # When filtering sources, we want to allow assets other than .rs files
         unfilteredRoot = ./.; # The original, unfiltered source

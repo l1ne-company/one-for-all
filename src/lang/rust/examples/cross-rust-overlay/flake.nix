@@ -33,7 +33,7 @@
           overlays = [ (import rust-overlay) ];
         };
 
-        oneForAllLib = (one-for-all.mkLib pkgs).overrideToolchain (p: p.rust-bin.stable.latest.default);
+        oneForAllLib = (one-for-all.lib.mkLib pkgs).overrideToolchain (p: p.rust-bin.stable.latest.default);
 
         # Note: we have to use the `callPackage` approach here so that Nix
         # can "splice" the packages in such a way that dependencies are

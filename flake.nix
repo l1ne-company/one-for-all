@@ -3,11 +3,6 @@
 
   inputs = { };
 
-  nixConfig = {
-    extra-substituters = [ "https://crane.cachix.org" ];
-    extra-trusted-public-keys = [ "crane.cachix.org-1:8Scfpmn9w+hGdXH/Q9tTLiYAE/2dnJYRJP7kl80GuRk=" ];
-  };
-
   outputs =
     { ... }:
     let
@@ -56,7 +51,9 @@
       ];
     in
     {
-      inherit mkLib;
+      lib = {
+        inherit mkLib;
+      };
 
       overlays.default = _final: _prev: { };
 

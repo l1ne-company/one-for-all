@@ -17,7 +17,7 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        oneForAllLib = one-for-all.mkLib pkgs;
+        oneForAllLib = one-for-all.lib.mkLib pkgs;
       in
       {
         packages.dummy = oneForAllLib.mkDummySrc {

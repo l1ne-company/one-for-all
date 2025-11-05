@@ -1,9 +1,4 @@
 {
-  nixConfig = {
-    extra-substituters = [ "https://crane.cachix.org" ];
-    extra-trusted-public-keys = [ "crane.cachix.org-1:8Scfpmn9w+hGdXH/Q9tTLiYAE/2dnJYRJP7kl80GuRk=" ];
-  };
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-latest-release.url = "github:NixOS/nixpkgs/nixos-25.05";
@@ -38,9 +33,7 @@
     inputs.flake-utils.lib.eachDefaultSystem (
       system:
       let
-        mkLib =
-          pkgs:
-          pkgs.callPackage ../lib { };
+        mkLib = pkgs: pkgs.callPackage ../lib { };
         nixpkgs = inputs.nixpkgs;
         pkgs = import nixpkgs {
           inherit system;

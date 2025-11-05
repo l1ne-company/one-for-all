@@ -13,9 +13,11 @@
       ...
     }:
     flake-utils.lib.eachDefaultSystem (system: {
-      packages.cargo-git = (one-for-all.mkLib nixpkgs.legacyPackages.${system}).downloadCargoPackageFromGit {
-        git = "https://github.com/rust-lang/cargo";
-        rev = "17f8088d6eafd82349630a8de8cc6efe03abf5fb";
-      };
+      packages.cargo-git =
+        (one-for-all.lib.mkLib nixpkgs.legacyPackages.${system}).downloadCargoPackageFromGit
+          {
+            git = "https://github.com/rust-lang/cargo";
+            rev = "17f8088d6eafd82349630a8de8cc6efe03abf5fb";
+          };
     });
 }

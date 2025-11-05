@@ -16,21 +16,6 @@
         "type": "github"
       }
     },
-    "crane": {
-      "locked": {
-        "lastModified": 1757183466,
-        "narHash": "sha256-kTdCCMuRE+/HNHES5JYsbRHmgtr+l9mOtf5dpcMppVc=",
-        "owner": "ipetkov",
-        "repo": "crane",
-        "rev": "d599ae4847e7f87603e7082d73ca673aa93c916d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ipetkov",
-        "repo": "crane",
-        "type": "github"
-      }
-    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -118,15 +103,26 @@
         "type": "github"
       }
     },
+    "one-for-all": {
+      "locked": {
+        "path": "../../../..",
+        "type": "path"
+      },
+      "original": {
+        "path": "../../../..",
+        "type": "path"
+      },
+      "parent": []
+    },
     "root": {
       "inputs": {
         "advisory-db": "advisory-db",
-        "crane": "crane",
         "fenix": "fenix",
         "flake-compat": "flake-compat",
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
         "nixpkgs-latest-release": "nixpkgs-latest-release",
+        "one-for-all": "one-for-all",
         "rust-overlay": "rust-overlay"
       }
     },
