@@ -129,18 +129,81 @@
       system:
       let
         nixpkgs = inputFromLock "nixpkgs";
-        pkgs = import nixpkgs {
+        nixpkgsLatest = inputFromLock "nixpkgs-latest-release";
+        rustOverlay = import (inputFromLock "rust-overlay");
+        fenix = import (inputFromLock "fenix") {
           inherit system;
         };
+
+        mkPkgs =
+          src: extra:
+          import src (
+            (if (extra ? system) || (extra ? localSystem) then { } else { inherit system; }) // extra
+          );
+
+        pkgs = mkPkgs nixpkgs { };
 
         formatter = pkgs.nixfmt-tree;
 
         myLib = mkLib pkgs;
+
+        ciRunner = pkgs.writeShellApplication {
+          name = "one-for-all-ci";
+          runtimeInputs = [ pkgs.nix ];
+          text = ''
+            set -euo pipefail
+            exec nix flake check --accept-flake-config --print-build-logs "$@"
+          '';
+        };
+
+        mkChecksFor =
+          name: nixpkgsSrc:
+          let
+            pkgsBase = mkPkgs nixpkgsSrc { };
+            pkgsChecks = mkPkgs nixpkgsSrc {
+              overlays = [ rustOverlay ];
+            };
+            mkLibFor = mkLib pkgsChecks;
+            myLibCross = mkLib (
+              mkPkgs nixpkgsSrc {
+                localSystem = system;
+                crossSystem = "wasm32-unknown-none";
+              }
+            );
+            myLibFenix = (mkLib pkgsBase).overrideToolchain (
+              fenix.latest.withComponents [
+                "cargo"
+                "rust-src"
+                "rustc"
+              ]
+            );
+            myLibWindows = mkLib (
+              mkPkgs nixpkgsSrc {
+                localSystem = system;
+                crossSystem = {
+                  config = "x86_64-w64-mingw32";
+                  libc = "msvcrt";
+                };
+              }
+            );
+            myLibWindowsCross = mkLib pkgsBase.pkgsCross.mingwW64;
+            rawChecks = pkgsChecks.callPackages ./src/lang/rust/checks {
+              pkgs = pkgsChecks;
+              inherit
+                myLibCross
+                myLibFenix
+                myLibWindows
+                myLibWindowsCross
+                ;
+              myLib = mkLibFor;
+            };
+          in
+          pkgs.lib.mapAttrs' (checkName: drv: pkgs.lib.nameValuePair "${name}-${checkName}" drv) rawChecks;
+
+        checks = (mkChecksFor "nixpkgs" nixpkgs) // (mkChecksFor "nixpkgs-latest" nixpkgsLatest);
       in
       {
-        inherit formatter;
-
-        checks = { };
+        inherit formatter checks;
 
         packages =
           (import ./src/lang/rust/pkgs {
@@ -148,7 +211,19 @@
           })
           // (import ./src/crypto/pkgs {
             inherit pkgs;
-          });
+          })
+          // {
+            local-ci = ciRunner;
+          };
+
+        apps.ci = {
+          type = "app";
+          program = "${ciRunner}/bin/one-for-all-ci";
+          meta = {
+            description = "Run the one-for-all local CI suite (nix flake check wrapper)";
+            mainProgram = "one-for-all-ci";
+          };
+        };
 
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
