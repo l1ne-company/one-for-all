@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DEFAULT_NIXPKGS="src/lang/rust/test#nixpkgs"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT_DEFAULT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+REPO_ROOT="${REPO_ROOT:-${REPO_ROOT_DEFAULT}}"
+
+usage() {
+  cat <<'EOF'
+ofactl - one-for-all build/test helper
+
+Usage:
+  ofactl test [-- <extra test.sh args>]
+  ofactl flake-check [-L|--log] [-- <extra nix flake check args>]
+  ofactl build [--attr ATTR] [-- <extra nix build args>]
+  ofactl example-check <path> [--nixpkgs INPUT] [-- <extra args>]
+
+Environment:
+  REPO_ROOT   Override repository root (defaults to repo-relative path)
+EOF
+}
+
+run() {
+  echo "[ofactl] (${REPO_ROOT}) $*"
+  (cd "${REPO_ROOT}" && "$@")
+}
+
+require_arg() {
+  local value="$1"
+  local message="$2"
+  if [[ -z "${value}" ]]; then
+    echo "ofactl: ${message}" >&2
+    exit 1
+  fi
+}
+
+build_command() {
+  local attr=""
+  local extra=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --attr)
+        require_arg "${2:-}" "--attr expects a value"
+        attr="$2"
+        shift 2
+        ;;
+      --attr=*)
+        attr="${1#*=}"
+        shift
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
+
+  extra=("$@")
+
+  local cmd=(nix build)
+  if [[ -n "${attr}" ]]; then
+    if [[ "${attr}" != .#* && "${attr}" != \#* ]]; then
+      attr=".#${attr}"
+    fi
+    cmd+=("${attr}")
+  fi
+  if [[ "${#extra[@]}" -gt 0 ]]; then
+    cmd+=("${extra[@]}")
+  fi
+
+  run "${cmd[@]}"
+}
+
+flake_check_command() {
+  local log_flag=""
+  local extra=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -L|--log)
+        log_flag="-L"
+        shift
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
+
+  extra=("$@")
+  local cmd=(nix flake check --accept-flake-config --print-build-logs)
+  if [[ -n "${log_flag}" ]]; then
+    cmd+=("${log_flag}")
+  fi
+  if [[ "${#extra[@]}" -gt 0 ]]; then
+    cmd+=("${extra[@]}")
+  fi
+  run "${cmd[@]}"
+}
+
+test_command() {
+  local extra=()
+  if [[ $# -gt 0 ]]; then
+    extra=("$@")
+  fi
+  if [[ "${#extra[@]}" -gt 0 && "${extra[0]}" == "--" ]]; then
+    extra=("${extra[@]:1}")
+  fi
+  local cmd=(./test.sh)
+  if [[ "${#extra[@]}" -gt 0 ]]; then
+    cmd+=("${extra[@]}")
+  fi
+  run "${cmd[@]}"
+}
+
+example_check_command() {
+  require_arg "${1:-}" "example path is required"
+  local example="$1"
+  shift
+
+  local nixpkgs="${DEFAULT_NIXPKGS}"
+  local extra=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --nixpkgs)
+        require_arg "${2:-}" "--nixpkgs expects a value"
+        nixpkgs="$2"
+        shift 2
+        ;;
+      --nixpkgs=*)
+        nixpkgs="${1#*=}"
+        shift
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
+
+  extra=("$@")
+  local cmd=(./ci/check-example.sh "${example}" "${nixpkgs}")
+  if [[ "${#extra[@]}" -gt 0 ]]; then
+    cmd+=("${extra[@]}")
+  fi
+  run "${cmd[@]}"
+}
+
+main() {
+  local subcommand="${1:-}"
+  if [[ -z "${subcommand}" ]]; then
+    usage
+    exit 1
+  fi
+  shift
+
+  case "${subcommand}" in
+    help|-h|--help)
+      usage
+      ;;
+    test)
+      test_command "$@"
+      ;;
+    flake-check)
+      flake_check_command "$@"
+      ;;
+    build)
+      build_command "$@"
+      ;;
+    example-check)
+      example_check_command "$@"
+      ;;
+    *)
+      echo "ofactl: unknown command '${subcommand}'" >&2
+      usage
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"
