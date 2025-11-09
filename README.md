@@ -26,6 +26,24 @@ The flake templates are defined in the main `flake.nix` at lines 63-129. They're
 nix flake init -t github:l1ne-company/one-for-all#quick-start
 ```
 
+## Local CLI helper (`one`)
+
+Run `cargo run --manifest-path src/cli/Cargo.toml -- --help` to explore `one`, our Clap-based helper that keeps everything local by wrapping the relevant Nix commands:
+
+- `build`: calls `nix build` (with `--nix-arg` passthrough) against the repo root or a specific attribute.
+- `check`: runs `nix flake check` for this repository, exposing `-L`, `--no-build`, and lockfile controls.
+- `ci`: wraps `nix run .#ci` so you can execute the full local CI suite (with passthrough flags after `--`).
+- `test <example>`: executes `nix flake check` for any example/template, automatically overriding the `one-for-all` and `nixpkgs` inputs so the local tree is exercised instead of the remote GitHub source.
+- `develop`: enters `nix develop` (optionally running a one-shot command).
+
+Install it permanently with `cargo install --path src/cli --bin one` if you want the `one` binary on your PATH.
+
+To run the complete local CI suite without the CLI, use the Nix app exposed by the flake:
+
+```bash
+nix run .#ci -- --no-build   # extra flags passed through to `nix flake check`
+```
+
 ```mermaid
 graph TD
   FLAKE[flake.nix]
