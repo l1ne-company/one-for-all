@@ -1,3 +1,4 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/l1ne-company/one-for-all)
 # ONE-FOR-ALL
 
 ## TUTORIAL
